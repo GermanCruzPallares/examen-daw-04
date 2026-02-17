@@ -1,3 +1,4 @@
 ## Examen Arquitecturas Cloud y DevOps
 
-![Texto alternativo]temperaturas.png
+
+[![Texto alternativo](temperatura.png)]
