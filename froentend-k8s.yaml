@@ -2,11 +2,11 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'frontend/**'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -31,8 +31,15 @@ jobs:
 
     - name: Update Kubernetes manifests
       run: |
-        sed -i "s|image: germancruzpallares/temperaturas-frontend:.*|image: germancruzpallares/temperaturas-frontend:${{ env.NEW_TAG }}|g" frontend-k8s.yaml
+        FILE_PATH=$(find . -name "frontend-k8s.yaml" | head -n 1)
+        if [ -z "$FILE_PATH" ]; then
+          echo "ERROR: frontend-k8s.yaml not found"
+          exit 1
+        fi
+        echo "Updating file: $FILE_PATH"
+        sed -i "s|image: germancruzpallares/temperaturas-frontend:.*|image: germancruzpallares/temperaturas-frontend:${NEW_TAG}|g" "$FILE_PATH"
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add frontend-k8s.yaml
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update frontend image tag to ${{ env.NEW_TAG }}" && git push origin main)
+        git add "$FILE_PATH"
+        git diff --staged --quiet || git commit -m "Update frontend image tag to ${NEW_TAG}"
+        git push origin main
